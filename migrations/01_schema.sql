@@ -33,4 +33,13 @@ CREATE TABLE reservations (
   end_date DATE,
   property_id INTEGER NOT NULL REFERENCES properties(id),
   guest_id INTEGER NOT NULL REFERENCES users(id)
+);
+
+CREATE TABLE property_reviews (
+  id SERIAL PRIMARY KEY NOT NULL,
+  guest_id INTEGER NOT NULL REFERENCES users(id),
+  property_id INTEGER NOT NULL REFERENCES properties(id),
+  reservation_id INTEGER NOT NULL REFERENCES reservations(id),
+  rating SMALLINT,
+  message TEXT
 )
