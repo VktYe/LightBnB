@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS users, properties, reservations CASCADE;
+
+
 CREATE TABLE users (
   id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(255) NOT NULL,
@@ -24,3 +27,10 @@ CREATE TABLE properties (
   atcive BOOLEAN
 );
 
+CREATE TABLE reservations (
+  id SERIAL PRIMARY KEY NOT NULL,
+  start_date DATE,
+  end_date DATE,
+  property_id INTEGER NOT NULL REFERENCES properties(id),
+  guest_id INTEGER NOT NULL REFERENCES users(id)
+)
