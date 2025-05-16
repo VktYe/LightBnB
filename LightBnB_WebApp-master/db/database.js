@@ -11,14 +11,21 @@ const users = require("./json/users.json");
  * @return {Promise<{}>} A promise to the user.
  */
 const getUserWithEmail = function (email) {
-  let resolvedUser = null;
-  for (const userId in users) {
-    const user = users[userId];
-    if (user && user.email.toLowerCase() === email.toLowerCase()) {
-      resolvedUser = user;
-    }
-  }
-  return Promise.resolve(resolvedUser);
+  const queryText = `
+  SELECT * FROM users 
+  WHERE LOWER(email) = LOWER($1) 
+  LIMIT 1;`;
+  return pool
+    .query(queryText, [email])
+    .then((result) => {
+      if (result.rows.length > 0) {
+        return result.rows[0];
+      }
+      return null;
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
 };
 
 /**
