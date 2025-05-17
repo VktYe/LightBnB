@@ -118,9 +118,70 @@ const getAllReservations = function (guest_id, limit = 10) {
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = function (options, limit = 10) {
-  const queryText = `SELECT * FROM properties LIMIT $1`;
+
+  console.log("Received options:", options); //delete
+  // 1
+  const queryParams = [];
+  // 2
+  let queryText = `
+  SELECT properties.*, avg(property_reviews.rating) as average_rating
+  FROM properties
+  LEFT JOIN property_reviews ON properties.id = property_id
+  `;
+
+  const whereConditions = [];
+
+  // City filter
+  if (options.city) {
+    queryParams.push(`%${options.city}%`);
+    whereConditions.push(`city ILIKE $${queryParams.length} `);
+  }
+
+  // Owner filter
+  if(options.owner_id) {
+    queryParams.push(options.owner_id);
+    whereConditions.push(`owner_id = $${queryParams.length}`);
+  }
+
+  // Cost filter minimum
+
+  if(options.minimum_price_per_night) {
+    queryParams.push(Number(options.minimum_price_per_night) * 100);
+    whereConditions.push(`cost_per_night >= $${queryParams.length}`);
+  }
+
+  // maximum
+  if(options.maximum_price_per_night) {
+    queryParams.push(Number(options.maximum_price_per_night) * 100);
+    whereConditions.push(`cost_per_night <= $${queryParams.length}`);
+  }
+
+  // WHERE/AND
+  if (whereConditions.length > 0) {
+    queryText += `WHERE ${whereConditions.join(' AND ')} \n`;
+  }
+
+  // GROUP BY
+  queryText += `GROUP BY properties.id \n`;
+
+  // Minimum rating filter
+  if (options.minimum_rating) {
+    queryParams.push(Number(options.minimum_rating));
+    queryText += `HAVING avg(property_reviews.rating) >= $${queryParams.length}`;
+
+  }
+
+  // ORDER BY and LIMIT
+  queryParams.push(limit);
+  queryText += `
+  ORDER BY average_rating ASC, cost_per_night ASC
+  LIMIT $${queryParams.length}`;
+
+  // 5
+  console.log("Result: ", queryText, queryParams);
+
   return pool
-    .query(queryText, [limit])
+    .query(queryText, queryParams)
     .then((result) => {
       console.log(result.rows);
       return result.rows;
@@ -150,3 +211,4 @@ module.exports = {
   getAllProperties,
   addProperty,
 };
+
