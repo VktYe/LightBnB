@@ -17,7 +17,7 @@ const pool = new Pool({
  * @param {String} email The email of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithEmail = function (email) {
+const getUserWithEmail = function(email) {
   const queryText = `
   SELECT * FROM users 
   WHERE LOWER(email) = LOWER($1) 
@@ -40,7 +40,7 @@ const getUserWithEmail = function (email) {
  * @param {string} id The id of the user.
  * @return {Promise<{}>} A promise to the user.
  */
-const getUserWithId = function (id) {
+const getUserWithId = function(id) {
   const queryText = `
     SELECT * FROM users 
     WHERE id = $1 
@@ -63,7 +63,7 @@ const getUserWithId = function (id) {
  * @param {{name: string, password: string, email: string}} user
  * @return {Promise<{}>} A promise to the user.
  */
-const addUser = function (user) {
+const addUser = function(user) {
   const { name, email, password } = user;
   const queryText = `
     INSERT INTO users (name, email, password)
@@ -88,7 +88,7 @@ const addUser = function (user) {
  * @param {string} guest_id The id of the user.
  * @return {Promise<[{}]>} A promise to the reservations.
  */
-const getAllReservations = function (guest_id, limit = 10) {
+const getAllReservations = function(guest_id, limit = 10) {
   queryText = `
     SELECT reservations.*, properties.*, avg(property_reviews.rating) as average_rating
     FROM reservations
@@ -97,7 +97,7 @@ const getAllReservations = function (guest_id, limit = 10) {
     WHERE reservations.guest_id = $1
     GROUP BY reservations.id, properties.id
     ORDER BY reservations.start_date
-    LIMIT $2;`
+    LIMIT $2;`;
   return pool
     .query(queryText, [guest_id, limit])
     .then((result) => {
@@ -117,7 +117,7 @@ const getAllReservations = function (guest_id, limit = 10) {
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
  */
-const getAllProperties = function (options, limit = 10) {
+const getAllProperties = function(options, limit = 10) {
 
   console.log("Received options:", options); //delete
   // 1
@@ -196,7 +196,7 @@ const getAllProperties = function (options, limit = 10) {
  * @param {{}} property An object containing all of the property details.
  * @return {Promise<{}>} A promise to the property.
  */
-const addProperty = function (property) {
+const addProperty = function(property) {
   console.log('Received property to add:', property); //delete
   const queryText = `
   INSERT INTO properties (
@@ -232,7 +232,7 @@ const addProperty = function (property) {
     property.city,
     property.province,
     property.post_code
-  ]
+  ];
 
   return pool
     .query(queryText, queryParams)
